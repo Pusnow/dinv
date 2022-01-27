@@ -26,6 +26,8 @@ run qemu-img create -f qcow2 root.qcow2 8G
 
 run qemu-nbd --connect=/dev/nbd0 root.qcow2
 
+run sleep 1
+
 run mkfs.ext4 /dev/nbd0
 
 run mkdir -p rootfs
