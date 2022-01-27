@@ -23,7 +23,7 @@ Also, it supports port binding (via `hostfwd` of [SLIRP](https://wiki.qemu.org/D
 | Security                   | Container can create/delete/modify host's containers | Weak isolation (require privileged mode) | ?                       | Strong isolation (VM isolation + unprivileged)                                                                                                                |
 | Compute/memory performance | Native                                               | Native                                   | ?                       | Near-native (VT-x accelerated)                                                                                                                                |
 | Networking performance     | Native                                               | Native                                   | ?                       | Poor (depends on [SLIRP](https://wiki.qemu.org/Documentation/Networking#User_Networking_.28SLIRP.29))                                                         |
-| I/O performance            | Native                                               | Native                                   | ?                       | Near-native (`docker volume` (private), depending on `virtio-blk`), Poor (bind mounts, depending on [virtio-9p](https://wiki.qemu.org/Documentation/9psetup)) |
+| I/O performance            | Native                                               | Native                                   | ?                       | Near-native (`docker volume` (private), depending on `virtio-blk`) <br> Poor (bind mounts, depending on [virtio-9p](https://wiki.qemu.org/Documentation/9psetup)) |
 
 ## Usage
 
