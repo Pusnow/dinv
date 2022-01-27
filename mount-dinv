@@ -1,0 +1,37 @@
+#!/sbin/openrc-run
+
+description="Mount Dinv file systems"
+
+depend() {
+    need sysfs modules
+    before docker
+}
+
+start() {
+    yesno $rc_verbose && verbose=yes
+
+    ebegin "Loading Dinv file systems"
+    eindent
+
+    if [ -b "/dev/vdb" ]; then
+        veinfo "Mounting Docker Graph"
+        if [ -z "$(blkid -n ext4 /dev/vdb)" ]; then
+            veinfo "Formatting Docker Graph"
+            mkfs.ext4 -q /dev/vdb
+        fi
+        mkdir -p /var/lib/docker
+        mount -t ext4 /dev/vdb /var/lib/docker
+    fi
+
+    for cfg in /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/9p/*; do
+        tag="$(basename $cfg)"
+        mp="$(cat $cfg/raw)"
+        veinfo "Mounting (9p) $tag: $mp"
+        mkdir -p "$mp"
+        mount -t 9p -o trans=virtio "$tag" "$mp" -oversion=9p2000.L
+    done
+
+    eoutdent
+
+    eend $?
+}

@@ -1,0 +1,20 @@
+version: "3.5"
+
+services:
+  docker-client:
+    image: docker:latest
+    volumes:
+      - "shared:/shared"
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+  docker:
+    build: .
+    volumes:
+      - "shared:/shared"
+    environment:
+      - DINV_MOUNTS=/shared
+    devices:
+      - "/dev/kvm"
+
+volumes:
+  shared:

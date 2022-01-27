@@ -1,0 +1,33 @@
+
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Tools
+        run: sudo apt-get update && sudo apt-get install -y qemu-utils
+
+      - uses: actions/checkout@v2
+
+      - name: Building Images
+        run: sudo ./build.sh
+
+      - name: Building Docker Image
+        run: sudo docker build -t dinv:latest .
+      
+      - name: Log into Docker Hub
+        run: echo "${{ secrets.DH_TOKEN }}" | docker login -u ${{ secrets.DH_NAME }} --password-stdin
+
+      - name: Push image to Docker Hub
+        run: |
+          docker tag dinv:latest pusnow/dinv:latest
+          docker push pusnow/dinv:latest
+
