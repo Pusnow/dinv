@@ -25,7 +25,7 @@ MOUNT_COUNTER=0
 for mount in $(echo "$DINV_MOUNTS" | tr ';' ' '); do
   echo "$mount" > /var/run/dinvfs${MOUNT_COUNTER}
   MOUNTS="${MOUNTS}\
-  -fsdev local,path=${mount},security_model=mapped-xattr,id=dinvfsdev${MOUNT_COUNTER} \
+  -fsdev local,path=${mount},security_model=passthrough,id=dinvfsdev${MOUNT_COUNTER} \
   -device virtio-9p-device,fsdev=dinvfsdev${MOUNT_COUNTER},mount_tag=dinvfs${MOUNT_COUNTER} \
   -fw_cfg name=opt/dinv/9p/dinvfs${MOUNT_COUNTER},file=/var/run/dinvfs${MOUNT_COUNTER} "
   MOUNT_COUNTER=$((MOUNT_COUNTER+1))
