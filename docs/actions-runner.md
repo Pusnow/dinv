@@ -1,28 +1,20 @@
-# Using Jenkins with DinV
+# Using GitHub Actions Runner with DinV
 
-
-## Step 1: Jenkins Dockerfile
-
-Befor running Jenkins, you should make Jenkins `Dockerfile` by following step 4 of [https://www.jenkins.io/doc/book/installing/docker/#on-macos-and-linux](https://www.jenkins.io/doc/book/installing/docker/#on-macos-and-linux).
-In this instruction, the Jenkins Dockerfile is stored in a `jenkins` folder.
-
-## Step 2: Run Jenkins
-
-To run Jenkins, DinV provides two options: using DinV volume or sharing volume via virtio-9p.
+To run [GitHub actions runner for docker](https://github.com/myoung34/docker-github-actions-runner), DinV provides two options: using DinV volume or sharing volume via virtio-9p.
 Since virtio-9p shows very poor performance, we recommend using DinV volume.
 
-### Step 2-1: Run Jenkins using DinV volume (Recommended)
+### Option 1: Run actions runner using DinV volume (Recommended)
 
-* `jenkins_home` in VM disk image
+* `/workspace` in VM disk image
 * Pro: fast disk I/O
-* Con: invisible `jenkins_home` (lies in VM disk image)
+* Con: invisible `/workspace` (lies in VM disk image)
 
 #### Layout
 
 ```
 ┌Host docker───────────────────────────────┐
 │ ┌dinv docker───────────────────────────┐ │
-│ │ ┌─Jenkins ─────────────────────────┐ │ │
+│ │ ┌─actions runner───────────────────┐ │ │
 │ │ │                                  │ │ │
 │ │ │ bind mount: /var/run/docker.sock │ │ │
 │ │ │                                  │ │ │
@@ -37,47 +29,46 @@ Since virtio-9p shows very poor performance, we recommend using DinV volume.
 version: "3.5"
 
 services:
-  jenkins:
+  runner:
     image: pusnow/dinv:latest
     restart: always
     devices:
       - /dev/kvm
-    ports:
-      - 8080:8080
     networks:
       - default
     command:
-      - sh
-      - /jenkins/run.sh
+      - docker
+      - run
+      - -d
+      - --restart
+      - always
+      - --name
+      - github-runner
+      - -v
+      - /var/run/docker.sock:/var/run/docker.sock
+      - -v
+      - /workspace:/workspace
+      - -e RUNNER_WORKDIR="/workspace"
+      - -e ...
+      - myoung34/github-runner:latest
     volumes:
-      - jenkins-volume:/volume
+      - runner-volume:/volume
       - docker-image:/docker
-      - $PWD/jenkins:/jenkins
     environment:
-      - DINV_TCP_PORTS=8080
-      - DINV_VOLUME_PATH=/var/jenkins_home
+      - DINV_VOLUME_PATH=/workspace
 volumes: 
-  jenkins-volume:
+  runner-volume:
   docker-image:
 networks:
   default:
 ```
 
-#### `run.sh`
-
-```sh
-#!/bin/sh
-
-docker build --tag jenkins /jenkins
-docker run --rm -v/var/jenkins_home:/var/jenkins_home -u 0 --entrypoint "" jenkins chown -R jenkins:jenkins /var/jenkins_home
-docker run -d -p8080:8080 --restart always -v/var/jenkins_home:/var/jenkins_home -v/var/lib/docker.sock:/var/lib/docker.sock jenkins
-```
 
 
-### Step 2-2: Jenkins using virtio-9p
+### Option 2: actions runner using virtio-9p
 
-* `jenkins_home` is shared by virtio-9p
-* Pro: jenkins_home is visible
+* `workspace` is shared by virtio-9p
+* Pro: workspace is visible
 * Con: terribly slow I/O (virtio-9p)
 
 
@@ -85,7 +76,7 @@ docker run -d -p8080:8080 --restart always -v/var/jenkins_home:/var/jenkins_home
 
 ```
 ┌Host docker───────────────────────────────┐
-│ ┌Jenkins ──────────┐ ┌dinv docker──────┐ │
+│ ┌actions runner────┐ ┌dinv docker──────┐ │
 │ │                  │ │                 │ │
 │ │  DOCKER_HOST:    │ │                 │ │
 │ │  dinv docker     │ │                 │ │
@@ -100,18 +91,19 @@ docker run -d -p8080:8080 --restart always -v/var/jenkins_home:/var/jenkins_home
 version: "3.5"
 
 services:
-  jenkins:
-    build: jenkins
+  runner:
+    image: myoung34/github-runner:debian-bullseye
     restart: always
     networks: 
       - default
-      - jenkins
+      - runner
     volumes:
-      - jenkins-data:/var/jenkins_home
+      - runner-data:/workspace
     environment:
       - DOCKER_HOST=tcp://docker:2375
-    ports:
-      - "8080:8080"
+      - RUNNER_WORKDIR="/workspace"
+      - RUNNER_NAME=...
+      - ...
     depends_on: 
       - docker
   docker:
@@ -121,16 +113,16 @@ services:
     devices:
       - /dev/kvm
     networks:
-      - jenkins
+      - runner
     volumes:
-      - jenkins-data:/var/jenkins_home
+      - runner-data:/workspace
       - docker-image:/docker
     environment:
-      - DINV_MOUNTS=/var/jenkins_home
+      - DINV_MOUNTS=/workspace
 volumes: 
-  jenkins-data:
+  runner-data:
   docker-image:
 networks:
   default:
-  jenkins:
+  runner:
 ```
