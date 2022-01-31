@@ -15,15 +15,15 @@ We build DinV (Docker-in-VM), which allows spawning containers in a docker conta
 DinV uses [QEMU's microVM](https://qemu.readthedocs.io/en/latest/system/i386/microvm.html) to run a lightweight virtual machine with a separate Linux image ([Alpine Linux](https://www.alpinelinux.org)) and `dockerd` daemon.
 Also, it supports port binding (via `hostfwd` of [SLIRP](https://wiki.qemu.org/Documentation/Networking#User_Networking_.28SLIRP.29)) and file system sharing (via [virtio-9p](https://wiki.qemu.org/Documentation/9psetup)).
 
-|                            | DooD                                                 | DinD                                     | Sysbox                  | DinV                                                                                                                                                          |
-|----------------------------|------------------------------------------------------|------------------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Requirement      | Bind mounting of `/var/run/docker.sock`     | `--privileged` flag                        | Special runtime (`sysbox-runc`)| KVM device option (`--device /dev/kvm`)                                                                                                                                        |
-| Require special runtime    | No                                                   | No                                       | Yes                     | No                                                                                                                                                            |
-| `dockerd` separation       | Shared with host (no separation)                     | Separated                                | Separated               | Separated                                                                                                                                                     |
-| Security                   | Container can create/delete/modify host's containers | Weak isolation (require privileged mode) | ?                       | Strong isolation (VM isolation + unprivileged)                                                                                                                |
-| Compute/memory performance | Native                                               | Native                                   | ?                       | Near-native (VT-x accelerated)                                                                                                                                |
-| Networking performance     | Native                                               | Native                                   | ?                       | Poor (depends on [SLIRP](https://wiki.qemu.org/Documentation/Networking#User_Networking_.28SLIRP.29))                                                         |
-| I/O performance            | Native                                               | Native                                   | ?                       | [Volumes](https://docs.docker.com/storage/volumes/): Near-native (`virtio-blk`) <br> Bind mounts: Poor ([virtio-9p](https://wiki.qemu.org/Documentation/9psetup)) |
+|                            | DooD                                                 | DinD                                     | Sysbox                          | DinV                                                                                                                                                              |
+|----------------------------|------------------------------------------------------|------------------------------------------|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Requirement                | Bind mounting of `/var/run/docker.sock`              | `--privileged` flag                      | Special runtime (`sysbox-runc`) | KVM device option (`--device /dev/kvm`)                                                                                                                           |
+| Require special runtime    | No                                                   | No                                       | Yes                             | No                                                                                                                                                                |
+| `dockerd` separation       | Shared with host (no separation)                     | Separated                                | Separated                       | Separated                                                                                                                                                         |
+| Security                   | Container can create/delete/modify host's containers | Weak isolation (require privileged mode) | ?                               | Strong isolation (VM isolation + unprivileged)                                                                                                                    |
+| Compute/memory performance | Native                                               | Native                                   | ?                               | Near-native (VT-x accelerated)                                                                                                                                    |
+| Networking performance     | Native                                               | Native                                   | ?                               | Poor (depends on [SLIRP](https://wiki.qemu.org/Documentation/Networking#User_Networking_.28SLIRP.29))                                                             |
+| I/O performance            | Native                                               | Native                                   | ?                               | [Volumes](https://docs.docker.com/storage/volumes/): Near-native (`virtio-blk`) <br> Bind mounts: Poor ([virtio-9p](https://wiki.qemu.org/Documentation/9psetup)) |
 
 ## Usage
 
@@ -39,6 +39,17 @@ latest: Pulling from library/debian
 Digest: sha256:fb45fd4e25abe55a656ca69a7bef70e62099b8bb42a279a5e0ea4ae1ab410e0d
 Status: Downloaded newer image for debian:latest
 root@1ee213376f22:/# 
+```
+
+Or, you can use Docker management port.
+
+```bash
+$ docker run -d --rm --name dinv --device /dev/kvm -p127.0.0.1:2375:2375 pusnow/dinv:latest
+$ # wait few seconds
+$ docker -H tcp://127.0.0.1:2375 ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+$ DOCKER_HOST="tcp://127.0.0.1:2375" docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
 ### Port Forwarding
@@ -76,6 +87,28 @@ Digest: sha256:fb45fd4e25abe55a656ca69a7bef70e62099b8bb42a279a5e0ea4ae1ab410e0d
 Status: Downloaded newer image for debian:latest
 Hello world
 ```
+
+### Environment Variables
+
+| Name             | Description                                                               |
+|------------------|---------------------------------------------------------------------------|
+| `DINV_CPUS`      | Number of CPUS for VM (default: 1)                                        |
+| `DINV_MEMORY`    | Amount of memory for VM (default: 512M)                                   |
+| `DINV_TCP_PORTS` | TCP port numbers for forwarding. Semicolon-separated list (default: none) |
+| `DINV_UDP_PORTS` | UDP port numbers for forwarding. Semicolon-separated list (default: none) |
+| `DINV_MOUNTS`    | Paths for bind mounts. Semicolon-separated list (default: none)           |
+
+### Volumes
+
+| Path      | Description                                  |
+|-----------|----------------------------------------------|
+| `/docker` | VM disk image for Docker (`/var/lib/docker`) |
+
+### Ports
+
+| Port Number | Description         |
+|-------------|---------------------|
+| `2375`      | Docker control port |
 
 ## TODO
 
