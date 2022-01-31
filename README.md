@@ -41,15 +41,16 @@ Status: Downloaded newer image for debian:latest
 root@1ee213376f22:/# 
 ```
 
-### Port Forwarding (Currently Not Working)
+### Port Forwarding
 
 * Note: you have to specifiy forwared ports via `DINV_TCP_PORTS` environment variable. Semicolon-separated list is allowed.
+* Note 2: DinV uses a bridged network (172.19.0.0/16) inside VM. Make sure your host docker network does not use the range (Docker's default network range is 172.17.0.0/16).
 
 ```bash
-$ docker run -d --rm -p8080:8080 -e DINV_TCP_PORTS=8080 --name dinv --device /dev/kvm pusnow/dinv:latest
-$ # wait few seconds
-$ docker exec -it dinv docker run -d -p8080:80 --rm nginx
-$ curl http://127.0.0.1:8080
+docker run -d --rm -p8080:8080 -e DINV_TCP_PORTS=8080 --name dinv --device /dev/kvm pusnow/dinv:latest
+# wait few seconds
+docker exec -it dinv docker run -d -p8080:80 --rm nginx
+curl http://127.0.0.1:8080
 ```
 
 ### Bind Mount
@@ -73,6 +74,5 @@ Hello world
 
 ## TODO
 
-- Graceful shutdown
-- virtio-fs (current QEMU microVM does not support it)
-- Port forwarding (it is due to IP conflit between host network and VM network)
+* Graceful shutdown
+* virtio-fs (current QEMU microVM does not support it)
