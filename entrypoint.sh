@@ -30,6 +30,19 @@ for mount in $(echo "$DINV_MOUNTS" | tr ';' ' '); do
   MOUNT_COUNTER=$((MOUNT_COUNTER + 1))
 done
 
+DINV_VOLUME_SIZE=${DINV_VOLUME_SIZE:-64G}
+VOLUMES=""
+if [ ! -z "${DINV_VOLUME_PATH}" ]; then
+  if [ ! -f /volume/volume.qcow2 ]; then
+    qemu-img create -f qcow2 /volume/volume.qcow2 ${DINV_VOLUME_SIZE}
+  fi
+  echo "$DINV_VOLUME_PATH" >/var/run/dinv-volume
+  VOLUMES="\
+  -drive id=volume,file=/volume/volume.qcow2,format=qcow2,if=none \
+  -device virtio-blk-device,drive=volume \
+  -fw_cfg name=opt/dinv/volume,file=/var/run/dinv-volume"
+fi
+
 cmd_handler() {
 
   while [ "$(wget -q -O- http://127.0.0.1:2375/_ping)" != "OK" ]; do
@@ -52,4 +65,4 @@ qemu-system-x86_64 \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} -device virtio-net-device,netdev=user0 \
   -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none -device virtio-blk-device,drive=root \
   -drive id=docker,file=/docker/docker.qcow2,format=qcow2,if=none -device virtio-blk-device,drive=docker \
-  ${MOUNTS}
+  ${VOLUMES} ${MOUNTS}

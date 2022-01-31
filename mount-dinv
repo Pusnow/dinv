@@ -21,6 +21,17 @@ start() {
         fi
         mkdir -p /var/lib/docker
         mount -t ext4 /dev/vdb /var/lib/docker
+
+        if [ -b "/dev/vdc" ] && [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/raw ]; then
+            veinfo "Mounting Volume"
+            if [ -z "$(blkid -n ext4 /dev/vdc)" ]; then
+                veinfo "Formatting Volume"
+                mkfs.ext4 -q /dev/vdc
+            fi
+            mp="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/raw)"
+            mkdir -p $mp
+            mount -t ext4 /dev/vdc $mp
+        fi
     fi
 
     for cfg in /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/9p/*; do
