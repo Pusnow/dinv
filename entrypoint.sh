@@ -41,13 +41,13 @@ cmd_handler() {
 cmd_handler $@ &
 
 qemu-system-x86_64 \
-  -machine q35,accel=kvm -cpu host -smp ${DINV_CPUS} -m ${DINV_MEMORY} \
+  -machine microvm,accel=kvm -cpu host -smp ${DINV_CPUS} -m ${DINV_MEMORY} \
   -kernel /dinv/vmlinuz -initrd /dinv/initrd.img -append "console=ttyS0 rootfstype=ext4 root=/dev/vda" \
   -nodefaults -no-user-config -no-reboot -nographic \
   -serial stdio \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} \
-  -device virtio-net-pci,netdev=user0 -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none \
-  -device virtio-blk-pci,drive=root \
+  -device virtio-net-device,netdev=user0 -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none \
+  -device virtio-blk-device,drive=root \
   -drive id=docker,file=/docker/docker.qcow2,format=qcow2,if=none \
-  -device virtio-blk-pci,drive=docker \
+  -device virtio-blk-device,drive=docker \
   ${MOUNTS}
