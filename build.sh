@@ -55,7 +55,7 @@ run echo "9pnet" >>rootfs/etc/modules
 run echo "9pnet_virtio" >>rootfs/etc/modules
 run echo "qemu_fw_cfg" >>rootfs/etc/modules
 
-echo "DOCKER_OPTS=\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375\"" >> rootfs/etc/conf.d/docker
+echo "DOCKER_OPTS=\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375 --bip 172.19.0.0/16\"" >> rootfs/etc/conf.d/docker
 
 
 run cp ../mount-dinv rootfs/etc/init.d/mount-dinv
