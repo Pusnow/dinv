@@ -48,7 +48,6 @@ qemu-system-x86_64 \
   -kernel /dinv/vmlinuz -initrd /dinv/initrd.img -append "console=ttyS0 rootfstype=ext4 root=/dev/vda" \
   -nodefaults -no-user-config -no-reboot -nographic \
   -serial stdio \
-  -device virtio-ballon-device \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} \
   -device virtio-net-device,netdev=user0 -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none \
   -device virtio-blk-device,drive=root \
