@@ -19,4 +19,4 @@ ENV DOCKER_HOST="tcp://127.0.0.1:2375"
 
 EXPOSE 2375
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "docker", "ps" ]
+CMD [ "docker", "info" ]
