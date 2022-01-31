@@ -46,7 +46,7 @@ services:
       - 8080:8080
     networks:
       - default
-    commands:
+    command:
       - sh
       - /jenkins/run.sh
     volumes:
@@ -63,6 +63,15 @@ networks:
   default:
 ```
 
+#### `run.sh`
+
+```sh
+#!/bin/sh
+
+docker build --tag jenkins /jenkins
+docker run --rm -v/var/jenkins_home:/var/jenkins_home -u 0 --entrypoint "" jenkins chown -R jenkins:jenkins /var/jenkins_home
+docker run -d -p8080:8080 --restart always -v/var/jenkins_home:/var/jenkins_home -v/var/lib/docker.sock:/var/lib/docker.sock jenkins
+```
 
 
 ### Step 2-2: Jenkins using virtio-9p
