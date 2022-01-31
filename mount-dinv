@@ -25,10 +25,12 @@ start() {
 
     for cfg in /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/9p/*; do
         tag="$(basename $cfg)"
-        mp="$(cat $cfg/raw)"
-        veinfo "Mounting (9p) $tag: $mp"
-        mkdir -p "$mp"
-        mount -t 9p -o trans=virtio "$tag" "$mp" -oversion=9p2000.L
+        if [ -f "$cfg/raw" ]; then
+            mp="$(cat $cfg/raw)"
+            veinfo "Mounting (9p) $tag: $mp"
+            mkdir -p "$mp"
+            mount -t 9p -o trans=virtio "$tag" "$mp" -oversion=9p2000.L
+        fi
     done
 
     eoutdent
