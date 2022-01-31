@@ -74,6 +74,7 @@ $ curl http://127.0.0.1:8080
 ### Bind Mount
 
 * Note: you have to specifiy bind mounts via `DINV_MOUNTS` environment variable. Semicolon-separated list is allowed.
+* Note: we've found virtio-9p is terribly slow. Please, avoid I/O heavy workloads on it.
 
 ```bash
 $ mkdir -p data && echo "Hello world" > data/hello.txt
