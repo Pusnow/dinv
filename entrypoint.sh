@@ -69,13 +69,12 @@ trap 'term_handler' TERM
 qemu-system-x86_64 \
   -pidfile /var/run/dinv.pid \
   -machine microvm,accel=kvm -cpu host -smp ${DINV_CPUS} -m ${DINV_MEMORY} \
-  -chardev socket,path=/var/run/dinv-qga.sock,server=on,wait=off,id=qga0 \
-  -chardev socket,path=/var/run/dinv-console.sock,server=on,wait=off,logfile=/var/log/dinv.log,id=console0 \
-  -chardev file,id=console1,path=/var/log/dinv.log \
-  -device virtio-serial-device \
-  -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-  -kernel /dinv/vmlinuz -initrd /dinv/initrd.img -append "console=ttyS0 rootfstype=ext4 root=/dev/vda" \
   -nodefaults -no-user-config -no-reboot -nographic \
+  -kernel /dinv/vmlinuz -initrd /dinv/initrd.img -append "console=ttyS0 rootfstype=ext4 root=/dev/vda" \
+  -device virtio-serial-device \
+  -chardev socket,path=/var/run/dinv-qga.sock,server=on,wait=off,id=qga0 \
+  -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
+  -chardev socket,path=/var/run/dinv-console.sock,server=on,wait=off,logfile=/var/log/dinv.log,id=console0 \
   -serial chardev:console0 \
   -device virtio-balloon-device \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} -device virtio-net-device,netdev=user0 \
