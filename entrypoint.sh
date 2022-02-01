@@ -58,7 +58,7 @@ fi
 
 qemu-system-x86_64 \
   -machine microvm,accel=kvm -cpu host -smp ${DINV_CPUS} -m ${DINV_MEMORY} \
-  -chardev socket,path=/var/run/dinv-qga.sock,server,nowait,id=qga0 \
+  -chardev socket,path=/var/run/dinv-qga.sock,server=on,wait=off,id=qga0 \
   -device virtio-serial-device \
   -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
   -kernel /dinv/vmlinuz -initrd /dinv/initrd.img -append "console=ttyS0 rootfstype=ext4 root=/dev/vda" \
