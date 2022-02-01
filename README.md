@@ -93,17 +93,17 @@ Hello world
 
 ### Environment Variables
 
-| Name                    | Description                                                                                 |
-|-------------------------|---------------------------------------------------------------------------------------------|
-| `DINV_CPUS`             | Number of CPUS for VM (default: 1)                                                          |
-| `DINV_MEMORY`           | Amount of memory for VM (default: 512M)                                                     |
-| `DINV_TCP_PORTS`        | TCP port numbers for forwarding. Semicolon-separated list (default: none)                   |
-| `DINV_UDP_PORTS`        | UDP port numbers for forwarding. Semicolon-separated list (default: none)                   |
-| `DINV_MOUNTS`           | Paths for bind mounts. Semicolon-separated list (default: none)                             |
-| `DINV_DOCKER_SIZE`      | Initial size of Docker VM disk for `/var/lib/docker` (default: 64G)                         |
-| `DINV_VOLUME_PATH`      | If specified, DinV mount an additional VM disk image on the path (default: none)            |
-| `DINV_VOLUME_SIZE`      | Initial size of the `DINV_VOLUME_PATH` VM disk image                                        |
-| `DINV_SHUTDOWN_TIMEOUT` | DinV `dockerd`'s shutdown time out value (default: 5)                                       |
+| Name                    | Description                                                                                   |
+|-------------------------|-----------------------------------------------------------------------------------------------|
+| `DINV_CPUS`             | Number of CPUS for VM (default: 1)                                                            |
+| `DINV_MEMORY`           | Amount of memory for VM (default: 512M)                                                       |
+| `DINV_TCP_PORTS`        | TCP port numbers for forwarding. Semicolon-separated list (default: none)                     |
+| `DINV_UDP_PORTS`        | UDP port numbers for forwarding. Semicolon-separated list (default: none)                     |
+| `DINV_MOUNTS`           | Paths for bind mounts. Semicolon-separated list (default: none)                               |
+| `DINV_DOCKER_SIZE`      | Initial size of Docker VM disk for `/var/lib/docker` (default: 64G)                           |
+| `DINV_VOLUME_PATH`      | If specified, DinV mount an additional VM disk image on the path (default: none)              |
+| `DINV_VOLUME_SIZE`      | Initial size of the `DINV_VOLUME_PATH` VM disk image                                          |
+| `DINV_SHUTDOWN_TIMEOUT` | DinV `dockerd`'s shutdown time out value (default: 5)                                         |
 | `DINV_MACHINE`          | DinV machine type. Use `microvm` for a microVM and `q35` for a normal VM (default: `microvm`) |
 
 
