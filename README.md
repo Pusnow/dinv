@@ -122,5 +122,4 @@ Hello world
 
 ## TODO
 
-* Graceful shutdown
 * virtio-fs (current QEMU microVM does not support it)
