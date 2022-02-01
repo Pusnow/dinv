@@ -4,6 +4,7 @@ DINV_CPUS=${DINV_CPUS:-1}
 DINV_MEMORY=${DINV_MEMORY:-512M}
 
 DINV_DOCKER_SIZE=${DINV_DOCKER_SIZE:-64G}
+DINV_SHUTDOWN_TIMEOUT=${DINV_SHUTDOWN_TIMEOUT:-5}
 
 if [ ! -f /docker/docker.qcow2 ]; then
   qemu-img create -f qcow2 /docker/docker.qcow2 ${DINV_DOCKER_SIZE}
@@ -76,6 +77,7 @@ qemu-system-x86_64 \
   -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
   -chardev socket,path=/var/run/dinv-console.sock,server=on,wait=off,logfile=/var/log/dinv.log,id=console0 \
   -serial chardev:console0 \
+  -fw_cfg name=opt/dinv/shutdown-timeout,string=${DINV_SHUTDOWN_TIMEOUT} \
   -device virtio-balloon-device \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} -device virtio-net-device,netdev=user0 \
   -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none -device virtio-blk-device,drive=root \

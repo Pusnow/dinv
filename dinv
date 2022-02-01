@@ -44,6 +44,12 @@ start() {
         fi
     done
 
+    if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/shutdown-timeout/raw ]; then
+        TIMEOUT="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/shutdown-timeout/raw)"
+        veinfo "Seting Docker Timeout to $TIMEOUT"
+        echo "DOCKER_OPTS=\"\${DOCKER_OPTS} --shutdown-timeout $TIMEOUT\"" >> /etc/conf.d/docker
+    fi
+
     eoutdent
 
     eend $?
