@@ -49,23 +49,47 @@ cmd_handler() {
     echo "Waiting dockerd..."
     sleep 5
   done
-  $@
+  stdbuf -i0 -o0 -e0 echo '{ "execute": "guest-info" }' | nc local:/var/run/dinv-qga.sock
+  if [ "$#" -gt 0 ]; then
+    $@
+  fi
 }
 
-if [ "$#" -gt 0 ]; then
-  cmd_handler $@ &
-fi
+cmd_handler $@ &
+
+touch /var/log/dinv.log
+tail -f /var/log/dinv.log &
+
+term_handler() {
+  stdbuf -i0 -o0 -e0 echo '{ "execute": "guest-shutdown" }' | nc local:/var/run/dinv-qga.sock
+}
+
+trap 'term_handler' TERM
 
 qemu-system-x86_64 \
+  -pidfile /var/run/dinv.pid \
   -machine microvm,accel=kvm -cpu host -smp ${DINV_CPUS} -m ${DINV_MEMORY} \
   -chardev socket,path=/var/run/dinv-qga.sock,server=on,wait=off,id=qga0 \
+  -chardev socket,path=/var/run/dinv-console.sock,server=on,wait=off,logfile=/var/log/dinv.log,id=console0 \
+  -chardev file,id=console1,path=/var/log/dinv.log \
   -device virtio-serial-device \
   -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
   -kernel /dinv/vmlinuz -initrd /dinv/initrd.img -append "console=ttyS0 rootfstype=ext4 root=/dev/vda" \
   -nodefaults -no-user-config -no-reboot -nographic \
-  -serial stdio \
+  -serial chardev:console0 \
   -device virtio-balloon-device \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} -device virtio-net-device,netdev=user0 \
   -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none -device virtio-blk-device,drive=root \
   -drive id=docker,file=/docker/docker.qcow2,format=qcow2,if=none -device virtio-blk-device,drive=docker \
-  ${VOLUMES} ${MOUNTS}
+  ${VOLUMES} ${MOUNTS} &
+
+while [ ! -f /var/run/dinv.pid ]; do
+  sleep 1
+done
+
+QEMU_PID="$(cat /var/run/dinv.pid)"
+
+while [ -f /var/run/dinv.pid ]; do
+  wait $QEMU_PID
+  echo "Waiting QEMU shutdown..."
+done
