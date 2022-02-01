@@ -5,7 +5,6 @@ run() {
    $@ || exit 1
 }
 
-
 APK_TOOLS=http://dl-cdn.alpinelinux.org/alpine/v3.15/main/x86_64/apk-tools-static-2.12.7-r3.apk
 
 VERSION=${VERSION:-latest-stable}
@@ -36,7 +35,7 @@ run mount /dev/nbd0 rootfs
 
 run ${APK} --arch ${ARCH} -X http://dl-cdn.alpinelinux.org/alpine/${VERSION}/main/ \
    -X http://dl-cdn.alpinelinux.org/alpine/${VERSION}/community/ \
-   -U --allow-untrusted --root rootfs --initdb add alpine-base linux-virt util-linux e2fsprogs docker
+   -U --allow-untrusted --root rootfs --initdb add alpine-base linux-virt util-linux e2fsprogs docker qemu-guest-agent
 
 run cd rootfs/etc/init.d
 run ln -s agetty agetty.ttyS0
@@ -48,21 +47,21 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet dhcp
-" > rootfs/etc/network/interfaces
+" >rootfs/etc/network/interfaces
 
+echo "9pnet" >>rootfs/etc/modules
+echo "9pnet_virtio" >>rootfs/etc/modules
+echo "qemu_fw_cfg" >>rootfs/etc/modules
+echo "virtio_console" >>rootfs/etc/modules
 
-run echo "9pnet" >>rootfs/etc/modules
-run echo "9pnet_virtio" >>rootfs/etc/modules
-run echo "qemu_fw_cfg" >>rootfs/etc/modules
-
-echo "DOCKER_OPTS=\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375 --bip 172.19.0.1/16\"" >> rootfs/etc/conf.d/docker
-
+echo "DOCKER_OPTS=\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375 --bip 172.19.0.1/16\"" >>rootfs/etc/conf.d/docker
 
 run cp ../mount-dinv rootfs/etc/init.d/mount-dinv
 
 run chroot rootfs rc-update add agetty.ttyS0 default
 run chroot rootfs rc-update add docker default
 run chroot rootfs rc-update add mount-dinv default
+run chroot rootfs rc-update add qemu-guest-agent default
 
 run chroot rootfs rc-update add devfs sysinit
 run chroot rootfs rc-update add dmesg sysinit
