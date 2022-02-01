@@ -1,6 +1,6 @@
 #!/sbin/openrc-run
 
-description="Mount Dinv file systems"
+description="Setup DinV"
 
 depend() {
     need sysfs modules
@@ -10,7 +10,7 @@ depend() {
 start() {
     yesno $rc_verbose && verbose=yes
 
-    ebegin "Loading Dinv file systems"
+    ebegin "Loading DinV"
     eindent
 
     if [ -b "/dev/vdb" ]; then
