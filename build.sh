@@ -35,7 +35,7 @@ run mount /dev/nbd0 rootfs
 
 run ${APK} --arch ${ARCH} -X http://dl-cdn.alpinelinux.org/alpine/${VERSION}/main/ \
    -X http://dl-cdn.alpinelinux.org/alpine/${VERSION}/community/ \
-   -U --allow-untrusted --root rootfs --initdb add alpine-base linux-virt util-linux e2fsprogs docker qemu-guest-agent coreutils
+   -U --allow-untrusted --root rootfs --initdb add alpine-base linux-virt util-linux e2fsprogs docker qemu-guest-agent
 
 run cd rootfs/etc/init.d
 run ln -s agetty agetty.ttyS0

@@ -1,7 +1,7 @@
 ARG ALPINE_VERION=latest
 FROM alpine:${ALPINE_VERION}
 
-RUN apk add --no-cache qemu-system-x86_64 qemu-img docker-cli
+RUN apk add --no-cache qemu-system-x86_64 qemu-img docker-cli coreutils
 
 COPY build/root.qcow2 /dinv/root.qcow2
 COPY build/vmlinuz /dinv/vmlinuz
