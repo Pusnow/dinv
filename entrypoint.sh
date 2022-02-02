@@ -66,7 +66,6 @@ cmd_handler() {
     echo "Waiting dockerd..."
     sleep 5
   done
-  stdbuf -i0 -o0 -e0 echo '{ "execute": "guest-info" }' | nc local:/var/run/dinv-qga.sock
   if [ "$#" -gt 0 ]; then
     $@
   fi
