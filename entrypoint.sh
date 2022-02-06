@@ -8,11 +8,11 @@ DINV_SHUTDOWN_TIMEOUT=${DINV_SHUTDOWN_TIMEOUT:-5}
 DINV_MACHINE=${DINV_MACHINE:-microvm}
 
 DINV_BUS=""
-if [ "${DINV_MACHINE}" = "microvm" ];then
+if [ "${DINV_MACHINE}" = "microvm" ]; then
   DINV_BUS="device"
 fi
 
-if [ "${DINV_MACHINE}" = "q35" ];then
+if [ "${DINV_MACHINE}" = "q35" ]; then
   DINV_BUS="pci"
 fi
 
@@ -20,7 +20,6 @@ if [ -z "${DINV_BUS}" ]; then
   echo "Unsupported machine: ${DINV_MACHINE}"
   exit 1
 fi
-
 
 if [ ! -f /docker/docker.qcow2 ]; then
   qemu-img create -f qcow2 /docker/docker.qcow2 ${DINV_DOCKER_SIZE}
@@ -64,6 +63,11 @@ if [ ! -z "${DINV_VOLUME_PATH}" ]; then
   -fw_cfg name=opt/dinv/volume/gid,string=${DINV_VOLUME_GID} "
 fi
 
+DINV_DOCKER_SOCK_UID=${DINV_DOCKER_SOCK_UID:-0}
+DINV_DOCKER_SOCK_GID=${DINV_DOCKER_SOCK_GID:-0}
+DOCKER_SOCK="-fw_cfg name=opt/dinv/sock/uid,string=${DINV_DOCKER_SOCK_UID} \
+  -fw_cfg name=opt/dinv/sock/gid,string=${DINV_DOCKER_SOCK_GID} "
+
 cmd_handler() {
 
   while [ "$(wget -q -O- http://127.0.0.1:2375/_ping)" != "OK" ]; do
@@ -101,7 +105,7 @@ qemu-system-x86_64 \
   -netdev user,id=user0,hostfwd=tcp::2375-:2375${HOSTFWD} -device virtio-net-${DINV_BUS},netdev=user0 \
   -drive id=root,file=/dinv/root.qcow2,format=qcow2,if=none -device virtio-blk-${DINV_BUS},drive=root \
   -drive id=docker,file=/docker/docker.qcow2,format=qcow2,if=none -device virtio-blk-${DINV_BUS},drive=docker \
-  ${VOLUMES} ${MOUNTS} &
+  ${VOLUMES} ${DOCKER_SOCK} ${MOUNTS} &
 
 while [ ! -f /var/run/dinv.pid ]; do
   sleep 1
