@@ -13,6 +13,10 @@ start() {
     ebegin "After-docker DinV"
     eindent
 
+    while [ ! -f /var/run/docker.sock ]; do
+        sleep 1
+    done
+
     if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/uid/raw ]; then
         uid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/uid/raw)"
         chown ${uid} /var/run/docker.sock
