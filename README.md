@@ -103,6 +103,10 @@ Hello world
 | `DINV_DOCKER_SIZE`      | Initial size of Docker VM disk for `/var/lib/docker` (default: 64G)                           |
 | `DINV_VOLUME_PATH`      | If specified, DinV mount an additional VM disk image on the path (default: none)              |
 | `DINV_VOLUME_SIZE`      | Initial size of the `DINV_VOLUME_PATH` VM disk image                                          |
+| `DINV_VOLUME_UID`       | UID of the `DINV_VOLUME_PATH`                                                                 |
+| `DINV_VOLUME_GID`       | GID of the `DINV_VOLUME_PATH`                                                                 |
+| `DINV_DOCKER_SOCK_UID`  | UID of the `/var/run/docker.sock`                                                             |
+| `DINV_DOCKER_SOCK_GID`  | GID of the `/var/run/docker.sock`                                                             |
 | `DINV_SHUTDOWN_TIMEOUT` | DinV `dockerd`'s shutdown time out value (default: 5)                                         |
 | `DINV_MACHINE`          | DinV machine type. Use `microvm` for a microVM and `q35` for a normal VM (default: `microvm`) |
 
