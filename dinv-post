@@ -13,7 +13,7 @@ start() {
     ebegin "After-docker DinV"
     eindent
 
-    while [ ! -f /var/run/docker.sock ]; do
+    while [ ! -S /var/run/docker.sock ]; do
         sleep 1
     done
 
