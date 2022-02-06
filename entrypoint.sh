@@ -48,6 +48,8 @@ for mount in $(echo "$DINV_MOUNTS" | tr ';' ' '); do
 done
 
 DINV_VOLUME_SIZE=${DINV_VOLUME_SIZE:-64G}
+DINV_VOLUME_UID=${DINV_VOLUME_UID:-0}
+DINV_VOLUME_GID=${DINV_VOLUME_GID:-0}
 VOLUMES=""
 if [ ! -z "${DINV_VOLUME_PATH}" ]; then
   if [ ! -f /volume/volume.qcow2 ]; then
@@ -57,7 +59,9 @@ if [ ! -z "${DINV_VOLUME_PATH}" ]; then
   VOLUMES="\
   -drive id=volume,file=/volume/volume.qcow2,format=qcow2,if=none \
   -device virtio-blk-${DINV_BUS},drive=volume \
-  -fw_cfg name=opt/dinv/volume,file=/var/run/dinv-volume"
+  -fw_cfg name=opt/dinv/volume/path,file=/var/run/dinv-volume \
+  -fw_cfg name=opt/dinv/volume/uid,string=${DINV_VOLUME_UID} \
+  -fw_cfg name=opt/dinv/volume/gid,string=${DINV_VOLUME_GID} "
 fi
 
 cmd_handler() {
