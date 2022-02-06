@@ -1,0 +1,29 @@
+#!/sbin/openrc-run
+
+description="Setup After-docker DinV"
+
+depend() {
+    need sysfs modules
+    after docker
+}
+
+start() {
+    yesno $rc_verbose && verbose=yes
+
+    ebegin "After-docker DinV"
+    eindent
+
+    if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/uid/raw ]; then
+        uid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/uid/raw)"
+        chown ${uid} /var/run/docker.sock
+    fi
+
+    if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/gid/raw ]; then
+        gid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/gid/raw)"
+        chgrp ${gid} /var/run/docker.sock
+    fi
+
+    eoutdent
+
+    eend $?
+}

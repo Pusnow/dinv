@@ -57,10 +57,12 @@ echo "virtio_console" >>rootfs/etc/modules
 echo "DOCKER_OPTS=\"-H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375 --bip 172.19.0.1/16\"" >>rootfs/etc/conf.d/docker
 
 run cp ../dinv rootfs/etc/init.d/dinv
+run cp ../dinv-post rootfs/etc/init.d/dinv-post
 
 run chroot rootfs rc-update add agetty.ttyS0 default
 run chroot rootfs rc-update add docker default
 run chroot rootfs rc-update add dinv default
+run chroot rootfs rc-update add dinv-post default
 run chroot rootfs rc-update add qemu-guest-agent default
 
 run chroot rootfs rc-update add devfs sysinit

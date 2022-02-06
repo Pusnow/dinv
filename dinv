@@ -44,16 +44,6 @@ start() {
         fi
     fi
 
-    if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/uid/raw ]; then
-        uid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/uid/raw)"
-        chown ${uid} /var/run/docker.sock
-    fi
-
-    if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/gid/raw ]; then
-        gid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/sock/gid/raw)"
-        chgrp ${gid} /var/run/docker.sock
-    fi
-
     for cfg in /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/9p/*; do
         tag="$(basename $cfg)"
         if [ -f "$cfg/raw" ]; then
