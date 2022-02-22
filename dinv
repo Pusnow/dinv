@@ -19,6 +19,7 @@ start() {
             veinfo "Formatting Docker Graph"
             mkfs.ext4 -q /dev/vdb
         fi
+        rm -rf /var/lib/docker
         mkdir -p /var/lib/docker
         mount -t ext4 /dev/vdb /var/lib/docker
 
@@ -29,6 +30,7 @@ start() {
                 mkfs.ext4 -q /dev/vdc
             fi
             mp="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/path/raw)"
+            rm -rf "${mp}"
             mkdir -p "${mp}"
             mount -t ext4 /dev/vdc "${mp}"
 
@@ -49,6 +51,7 @@ start() {
         if [ -f "${cfg}/raw" ]; then
             mp=$(cat "${cfg}/raw")
             veinfo "Mounting (9p) ${tag}: ${mp}"
+            rm -rf "${mp}"
             mkdir -p "${mp}"
             mount -t 9p -o trans=virtio "${tag}" "${mp}" -oversion=9p2000.L
         fi
