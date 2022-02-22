@@ -29,35 +29,35 @@ start() {
                 mkfs.ext4 -q /dev/vdc
             fi
             mp="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/path/raw)"
-            mkdir -p $mp
-            mount -t ext4 /dev/vdc $mp
+            mkdir -p "${mp}"
+            mount -t ext4 /dev/vdc "${mp}"
 
             if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/uid/raw ]; then
                 uid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/uid/raw)"
-                chown ${uid} $mp
+                chown "${uid}" "${mp}"
             fi
 
             if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/gid/raw ]; then
                 gid="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/volume/gid/raw)"
-                chgrp ${gid} $mp
+                chgrp "${gid}" "${mp}"
             fi
         fi
     fi
 
     for cfg in /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/9p/*; do
-        tag="$(basename $cfg)"
-        if [ -f "$cfg/raw" ]; then
-            mp="$(cat $cfg/raw)"
-            veinfo "Mounting (9p) $tag: $mp"
-            mkdir -p "$mp"
-            mount -t 9p -o trans=virtio "$tag" "$mp" -oversion=9p2000.L
+        tag=$(basename "${cfg}")
+        if [ -f "${cfg}/raw" ]; then
+            mp=$(cat "${cfg}/raw")
+            veinfo "Mounting (9p) ${tag}: ${mp}"
+            mkdir -p "${mp}"
+            mount -t 9p -o trans=virtio "${tag}" "${mp}" -oversion=9p2000.L
         fi
     done
 
     if [ -f /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/shutdown-timeout/raw ]; then
         TIMEOUT="$(cat /sys/firmware/qemu_fw_cfg/by_name/opt/dinv/shutdown-timeout/raw)"
-        veinfo "Seting Docker Timeout to $TIMEOUT"
-        echo "DOCKER_OPTS=\"\${DOCKER_OPTS} --shutdown-timeout $TIMEOUT\"" >>/etc/conf.d/docker
+        veinfo "Seting Docker Timeout to ${TIMEOUT}"
+        echo "DOCKER_OPTS=\"\${DOCKER_OPTS} --shutdown-timeout ${TIMEOUT}\"" >>/etc/conf.d/docker
     fi
 
     eoutdent
